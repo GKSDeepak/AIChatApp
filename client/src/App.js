@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
+import { FaRegCopy } from "react-icons/fa";
 import './App.css';
 
 function App() {
@@ -7,11 +8,70 @@ function App() {
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+  const backendUrl = 'http://localhost:5000'; // Ensure the backend server is running
 
   // Function to submit question to the server
   const askQuestion = async () => {
-    // TODO: Implement the function to send the question to the server
+    if (!question.trim()) return; // Don't send empty questions
+    setLoading(true);
+
+
+
+
+
+    try {
+      // Post question to backend
+      const response = await fetch(`${backendUrl}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userInput: question }) // Send as `userInput` to match backend
+      });
+
+
+     
+      console.log(response);
+
+      const data = await response.json();
+
+      console.log(data);
+      const answer = data.response; // Adjust to match the backend response key
+      console.log(answer);
+
+      // Update the conversation
+      setConversation((prev) => [
+        ...prev,
+        { role: 'user', content: question },
+        { role: 'gemini', content: answer }
+      ]);
+
+      // Clear the input
+      setQuestion('');
+    } catch (error) {
+      console.error("Error fetching response from server:", error);
+    } finally {
+      setLoading(false);
+      // Scroll to bottom of chat
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+
+  // Function to copy the content to the clipboard
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        alert("Copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
+
+  // Combined function to ask question and stream response
+  const handleAsk = () => {
+    askQuestion(); // Send the question
   };
 
   return (
@@ -22,8 +82,18 @@ function App() {
       <div className="chat-container">
         {conversation.map((msg, index) => (
           <div key={index} className={`message ${msg.role}`}>
-            <strong>{msg.role === 'user' ? 'You' : 'GPT-4'}:</strong>
-            <span>{msg.content}</span>
+            <strong>{msg.role === 'user' ? 'You' : 'Gemini'}:</strong>
+            <span className='content'>{msg.content}</span>
+            {/* Show copy button only for Gemini responses */}
+            {msg.role === 'gemini' && (
+              <button 
+                className="copy-button" 
+                onClick={() => handleCopy(msg.content)}
+              >
+                
+                <FaRegCopy />
+              </button>
+            )}
           </div>
         ))}
         <div ref={chatEndRef} />
@@ -38,7 +108,7 @@ function App() {
         onChange={(e) => setQuestion(e.target.value)}
       />
       <br />
-      <button className="button" onClick={askQuestion} disabled={loading}>
+      <button className="button" onClick={handleAsk} disabled={loading}>
         {loading ? 'Loading...' : 'Ask'}
       </button>
     </div>
