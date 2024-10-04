@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { FaRegCopy } from "react-icons/fa";
+import Text from './components/Text';
 import './App.css';
 
 function App() {
@@ -14,10 +15,6 @@ function App() {
   const askQuestion = async () => {
     if (!question.trim()) return; // Don't send empty questions
     setLoading(true);
-
-
-
-
 
     try {
       // Post question to backend
@@ -58,21 +55,6 @@ function App() {
   };
 
 
-  // Function to copy the content to the clipboard
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        alert("Copied to clipboard!");
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
-  };
-
-  // Combined function to ask question and stream response
-  const handleAsk = () => {
-    askQuestion(); // Send the question
-  };
 
   return (
     <div className="container">
@@ -81,20 +63,10 @@ function App() {
       {/* Chat container */}
       <div className="chat-container">
         {conversation.map((msg, index) => (
-          <div key={index} className={`message ${msg.role}`}>
-            <strong>{msg.role === 'user' ? 'You' : 'Gemini'}:</strong>
-            <span className='content'>{msg.content}</span>
-            {/* Show copy button only for Gemini responses */}
-            {msg.role === 'gemini' && (
-              <button 
-                className="copy-button" 
-                onClick={() => handleCopy(msg.content)}
-              >
-                
-                <FaRegCopy />
-              </button>
-            )}
-          </div>
+
+
+          <Text key={index} msg={msg} /> 
+
         ))}
         <div ref={chatEndRef} />
       </div>
@@ -108,7 +80,7 @@ function App() {
         onChange={(e) => setQuestion(e.target.value)}
       />
       <br />
-      <button className="button" onClick={handleAsk} disabled={loading}>
+      <button className="button" onClick={askQuestion} disabled={loading}>
         {loading ? 'Loading...' : 'Ask'}
       </button>
     </div>

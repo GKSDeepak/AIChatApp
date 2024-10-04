@@ -86,10 +86,11 @@ h1 {
   color: #ffffff;
 }
 
-.content{
+.content,strong{
   white-space: pre-wrap; /* Preserves spaces and line breaks */
   word-wrap: break-word; /* Ensures long words or lines break appropriately */
   text-align: left;
+  padding: 10px 0;
 }
 
 .copy-button {
