@@ -9,7 +9,8 @@ const Chat = () => {
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
 
-  const backendUrl = 'http://localhost:5000'; // Ensure the backend server is running
+  // const backendUrl = 'http://localhost:5000'; // Ensure the backend server is running
+  const backendUrl = process.env.BACKEND_URL;
 
   // Function to submit question to the server
   const askQuestion = async () => {
