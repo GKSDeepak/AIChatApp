@@ -152,7 +152,7 @@
 
 // export default App;
 import React, { useState, useRef, useEffect } from 'react';
-import { FaRegCopy } from "react-icons/fa";
+import { FaRegCopy } from "react-icons/fa"; // Keep this import since you're using it
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import axios from 'axios';
 import './App.css';
