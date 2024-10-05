@@ -152,7 +152,7 @@
 
 // export default App;
 import React, { useState, useRef, useEffect } from 'react';
-import { FaRegCopy } from "react-icons/fa"; // Keep this import since you're using it
+import { FaRegCopy } from "react-icons/fa";
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import axios from 'axios';
 import './App.css';
@@ -163,35 +163,19 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState();
   const chatEndRef = useRef(null);
-  const backendUrl = 'http://localhost:5001';
+  const backendUrl = `${process.env.BACKEND_BASEURL}`;
+
+  // `${import.meta.env.BACKEND_BASEURL}`/login
 
   // Text-to-speech state
-  const [synth] = useState(window.speechSynthesis);
-  const [readingIndex, setReadingIndex] = useState(null);
+  const synth = window.speechSynthesis;
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [voiceOptions, setVoiceOptions] = useState([]);
-  const [selectedVoice, setSelectedVoice] = useState(null);
+  const [currentUtterance, setCurrentUtterance] = useState(null);
+  const [readingIndex, setReadingIndex] = useState(null);
 
   // Voice to text logic
   const { transcript, browserSupportsSpeechRecognition } = useSpeechRecognition();
-
-  // Fetch available voices
-  useEffect(() => {
-    const handleVoices = () => {
-      const voices = synth.getVoices();
-      setVoiceOptions(voices);
-      if (voices.length > 0 && !selectedVoice) {
-        setSelectedVoice(voices[0]);
-      }
-    };
-
-    synth.addEventListener('voiceschanged', handleVoices);
-    handleVoices();
-
-    return () => {
-      synth.removeEventListener('voiceschanged', handleVoices);
-    };
-  }, [synth, selectedVoice]);
 
   // Update question when transcript changes
   useEffect(() => {
@@ -200,23 +184,29 @@ function App() {
 
   // Function to handle voice playback
   const handleVoice = (text, index) => {
-    if (isPaused && readingIndex === index) {
+    if (synth.speaking && !isPaused) {
+      // Pause speaking
+      synth.pause();
+      setIsPaused(true);
+    } else if (isPaused && readingIndex === index) {
+      // Resume speaking
       synth.resume();
       setIsPaused(false);
     } else {
+      // Cancel current speech and start new speech
       if (synth.speaking) synth.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
-
       utterance.onend = () => {
-        setReadingIndex(null);
+        setIsSpeaking(false);
         setIsPaused(false);
+        setReadingIndex(null);
       };
 
       synth.speak(utterance);
+      setCurrentUtterance(utterance);
+      setIsSpeaking(true);
+      setIsPaused(false);
       setReadingIndex(index);
     }
   };
@@ -225,10 +215,14 @@ function App() {
   const handleRestart = (text) => {
     if (synth.speaking) synth.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setIsPaused(false);
+    };
     synth.speak(utterance);
+    setCurrentUtterance(utterance);
+    setIsSpeaking(true);
+    setIsPaused(false);
   };
 
   // Upload file
@@ -317,13 +311,12 @@ function App() {
                 <button className="copy-button" onClick={() => handleCopy(msg.content)}>
                   <FaRegCopy />
                 </button>
-                {readingIndex === index && isPaused ? (
-                  <button className="voice-control-button" onClick={() => handleRestart(msg.content)}>Restart</button>
-                ) : (
-                  <button className="voice-control-button" onClick={() => handleVoice(msg.content, index)}>
-                    {readingIndex === index ? 'Pause' : 'Read Aloud'}
-                  </button>
-                )}
+                <button className="voice-control-button" onClick={() => handleVoice(msg.content, index)}>
+                  {isSpeaking && readingIndex === index ? (isPaused ? 'Resume' : 'Pause') : 'Read Aloud'}
+                </button>
+                <button className="voice-control-button" onClick={() => handleRestart(msg.content)}>
+                  Restart
+                </button>
               </div>
             )}
           </div>
@@ -351,13 +344,6 @@ function App() {
           <button className="button" onClick={SpeechRecognition.stopListening}>Stop Voice</button>
         </div>
       </div>
-
-      {/* Select voice option */}
-      <select onChange={(e) => setSelectedVoice(voiceOptions.find(voice => voice.name === e.target.value))}>
-        {voiceOptions.map((voice, index) => (
-          <option key={index} value={voice.name}>{voice.name}</option>
-        ))}
-      </select>
     </div>
   );
 }
