@@ -4,6 +4,25 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
 
+// const {upload} = require("./middleware/multer.middleware");
+
+const  multer = require( 'multer');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, './public/images')               //cb means call back
+    },
+    filename: function (req, file, cb) {
+     // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      //cb(null, file.fieldname + '-' + uniqueSuffix)
+      cb(null, file.originalname)
+
+    }
+  });
+  
+const upload = multer({ storage: storage })
+
+
 // Initialize Express app
 const app = express();
 app.use(cors());
@@ -64,9 +83,14 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+app.post('/upload', upload.single('file'),  (req, res) => {
+  console.log(req.body)
+  console.log(req.file)
+})
+
 
 // Start the server
-const PORT = 5000;
+const PORT = 5001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

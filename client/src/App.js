@@ -1,64 +1,281 @@
-import React, { useState, useRef } from 'react';
+// import React, { useState, useRef } from 'react';
+// import { FaRegCopy } from "react-icons/fa";
+// import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+// import useClipboard from "react-use-clipboard"; 
+// import axios from 'axios'
+// import './App.css';
+
+// function App() {
+//   const [question, setQuestion] = useState('');
+//   const [conversation, setConversation] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const chatEndRef = useRef(null);    
+//   const backendUrl = 'http://localhost:5001'; // Ensure the backend server is running
+//   const [file, setFile] = useState();
+
+//   const upload = () => {
+//     const formData = new FormData()
+//     formData.append('file', file)
+//     axios.post('http://localhost:5001/upload', formData)
+//     .then(res => {})
+//     .catch(er => console.log(er))
+//   }
+  
+
+//   // voice to Text.
+//   const [textToCopy, setTextToCopy] = useState();
+//   const [isCopied, setCopied] = useClipboard(textToCopy, {
+//       successDuration:1000
+//   });
+//   const startListening = () => SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
+//   const { transcript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+//   if (!browserSupportsSpeechRecognition) {
+//       return null
+//   }
+
+
+//   // Function to submit question to the server
+//   const askQuestion = async () => {
+//     if (!question.trim()) return; // Don't send empty questions
+//     setLoading(true);
+//     try {
+//       // Post question to backend
+//       const response = await fetch(`${backendUrl}/chat`, {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({ userInput: question }) // Send as `userInput` to match backend
+//       });
+
+
+     
+//       console.log(response);
+
+//       const data = await response.json();
+
+//       console.log(data);
+//       const answer = data.response; // Adjust to match the backend response key
+//       console.log(answer);
+
+//       // Update the conversation
+//       setConversation((prev) => [
+//         ...prev,
+//         { role: 'user', content: question },
+//         { role: 'gemini', content: answer }
+//       ]);
+
+//       // Clear the input
+//       setQuestion('');
+//     } catch (error) {
+//       console.error("Error fetching response from server:", error);
+//     } finally {
+//       setLoading(false);
+//       // Scroll to bottom of chat
+//       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+//     }
+//   };
+
+
+//   // Function to copy the content to the clipboard
+//   const handleCopy = (text) => {
+//     navigator.clipboard.writeText(text)
+//       .then(() => {
+//         alert("Copied to clipboard!");
+//       })
+//       .catch((err) => {
+//         console.error("Failed to copy text: ", err);
+//       });
+//   };
+
+//   // Combined function to ask question and stream response
+//   const handleAsk = () => {
+//     askQuestion(); // Send the question
+//   };
+
+//   return (
+//     <div className="container">
+//       <h1>Chat with me</h1>
+
+
+//       {/* Chat container */}
+//       <div className="chat-container">
+//         {conversation.map((msg, index) => (
+//           <div key={index} className={`message ${msg.role}`}>
+//             <strong>{msg.role === 'user' ? 'You' : 'Gemini'}:</strong>
+//             <span className='content'>{msg.content}</span>
+//             {/* Show copy button only for Gemini responses */}
+//             {msg.role === 'gemini' && (
+//               <button 
+//                 className="copy-button" 
+//                 onClick={() => handleCopy(msg.content)}
+//               >
+                
+//                 <FaRegCopy />
+//               </button>
+//             )}
+//           </div>
+//         ))}
+//         <div ref={chatEndRef} />
+//       </div>
+
+//       {/* Input section */}
+//       <textarea
+//         className="textarea"
+//         rows="4"
+//         placeholder="Ask a question..."
+//         value={question}
+//         onChange={(e) => setQuestion(e.target.value)}
+//       />
+//       <br />
+
+//       <div className="main-content" onClick={() =>  setTextToCopy(transcript)}>
+//                     {transcript}
+//                 </div>
+
+//                 <div className="btn-style">
+
+//                     <input type='file' onChange={(e) => setFile(e.target.files[0])}/>
+//                     <button type='button' onClick={upload}>Upload</button>
+
+
+//                     <button onClick={setCopied}>
+//                         {isCopied ? 'Copied!' : 'Copy to clipboard'}
+//                     </button>
+//                     <button onClick={startListening}>Start Listening</button>
+//                     <button onClick={SpeechRecognition.stopListening}>Stop Listening</button>
+
+//                 </div>
+//     </div>
+//   );
+// }
+
+// export default App;
+import React, { useState, useRef, useEffect } from 'react';
 import { FaRegCopy } from "react-icons/fa";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import axios from 'axios';
 import './App.css';
 
 function App() {
   const [question, setQuestion] = useState('');
   const [conversation, setConversation] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState();
   const chatEndRef = useRef(null);
+  const backendUrl = 'http://localhost:5001';
 
-  const backendUrl = 'http://localhost:5000'; // Ensure the backend server is running
+  // Text-to-speech state
+  const [synth] = useState(window.speechSynthesis);
+  const [readingIndex, setReadingIndex] = useState(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [voiceOptions, setVoiceOptions] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState(null);
 
-  // Function to submit question to the server
+  // Voice to text logic
+  const { transcript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+
+  // Fetch available voices
+  useEffect(() => {
+    const handleVoices = () => {
+      const voices = synth.getVoices();
+      setVoiceOptions(voices);
+      if (voices.length > 0 && !selectedVoice) {
+        setSelectedVoice(voices[0]);
+      }
+    };
+
+    synth.addEventListener('voiceschanged', handleVoices);
+    handleVoices();
+
+    return () => {
+      synth.removeEventListener('voiceschanged', handleVoices);
+    };
+  }, [synth, selectedVoice]);
+
+  // Update question when transcript changes
+  useEffect(() => {
+    setQuestion(transcript);
+  }, [transcript]);
+
+  // Function to handle voice playback
+  const handleVoice = (text, index) => {
+    if (isPaused && readingIndex === index) {
+      synth.resume();
+      setIsPaused(false);
+    } else {
+      if (synth.speaking) synth.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+
+      utterance.onend = () => {
+        setReadingIndex(null);
+        setIsPaused(false);
+      };
+
+      synth.speak(utterance);
+      setReadingIndex(index);
+    }
+  };
+
+  // Function to restart reading
+  const handleRestart = (text) => {
+    if (synth.speaking) synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+    synth.speak(utterance);
+  };
+
+  // Upload file
+  const upload = () => {
+    const formData = new FormData();
+    formData.append('file', file);
+    axios.post(`${backendUrl}/upload`, formData)
+      .then(() => {
+        console.log('File uploaded successfully');
+      })
+      .catch(err => console.log(err));
+  };
+
+  const startListening = () => SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
+
+  // Submit question to the server
   const askQuestion = async () => {
-    if (!question.trim()) return; // Don't send empty questions
+    if (!question.trim()) return;
     setLoading(true);
-
-
-
-
-
     try {
-      // Post question to backend
       const response = await fetch(`${backendUrl}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ userInput: question }) // Send as `userInput` to match backend
+        body: JSON.stringify({ userInput: question })
       });
 
-
-     
-      console.log(response);
-
       const data = await response.json();
+      const answer = data.response;
 
-      console.log(data);
-      const answer = data.response; // Adjust to match the backend response key
-      console.log(answer);
-
-      // Update the conversation
       setConversation((prev) => [
         ...prev,
         { role: 'user', content: question },
         { role: 'gemini', content: answer }
       ]);
 
-      // Clear the input
       setQuestion('');
     } catch (error) {
       console.error("Error fetching response from server:", error);
     } finally {
       setLoading(false);
-      // Scroll to bottom of chat
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-
-  // Function to copy the content to the clipboard
+  // Copy content to clipboard
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text)
       .then(() => {
@@ -69,10 +286,9 @@ function App() {
       });
   };
 
-  // Combined function to ask question and stream response
-  const handleAsk = () => {
-    askQuestion(); // Send the question
-  };
+  if (!browserSupportsSpeechRecognition) {
+    return <p>Your browser does not support speech recognition software! Try Chrome desktop, maybe?</p>;
+  }
 
   return (
     <div className="container">
@@ -82,17 +298,33 @@ function App() {
       <div className="chat-container">
         {conversation.map((msg, index) => (
           <div key={index} className={`message ${msg.role}`}>
-            <strong>{msg.role === 'user' ? 'You' : 'Gemini'}:</strong>
-            <span className='content'>{msg.content}</span>
-            {/* Show copy button only for Gemini responses */}
+            <div className="message-content">
+              <strong>{msg.role === 'user' ? 'You' : 'Gemini'}:</strong>
+              {msg.content.startsWith('data:image') ? (
+                <img
+                  src={msg.content}
+                  alt="Uploaded"
+                  className="chat-image"
+                  onClick={() => window.open(msg.content, '_blank')}
+                />
+              ) : (
+                <span className='content'>{msg.content}</span>
+              )}
+            </div>
+            {/* Action buttons */}
             {msg.role === 'gemini' && (
-              <button 
-                className="copy-button" 
-                onClick={() => handleCopy(msg.content)}
-              >
-                
-                <FaRegCopy />
-              </button>
+              <div className="response-buttons">
+                <button className="copy-button" onClick={() => handleCopy(msg.content)}>
+                  <FaRegCopy />
+                </button>
+                {readingIndex === index && isPaused ? (
+                  <button className="voice-control-button" onClick={() => handleRestart(msg.content)}>Restart</button>
+                ) : (
+                  <button className="voice-control-button" onClick={() => handleVoice(msg.content, index)}>
+                    {readingIndex === index ? 'Pause' : 'Read Aloud'}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         ))}
@@ -100,17 +332,32 @@ function App() {
       </div>
 
       {/* Input section */}
-      <textarea
-        className="textarea"
-        rows="4"
-        placeholder="Ask a question..."
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-      />
-      <br />
-      <button className="button" onClick={handleAsk} disabled={loading}>
-        {loading ? 'Loading...' : 'Ask'}
-      </button>
+      <div className="input-section">
+        <textarea
+          className="textarea"
+          rows="4"
+          placeholder="Ask a question..."
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && !loading && askQuestion()}
+        />
+        <div className="input-buttons">
+          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+          <button type="button" onClick={upload}>Upload</button>
+          <button className="button" onClick={askQuestion} disabled={loading}>
+            {loading ? 'Loading...' : 'Ask'}
+          </button>
+          <button className="button" onClick={startListening}>Start Voice</button>
+          <button className="button" onClick={SpeechRecognition.stopListening}>Stop Voice</button>
+        </div>
+      </div>
+
+      {/* Select voice option */}
+      <select onChange={(e) => setSelectedVoice(voiceOptions.find(voice => voice.name === e.target.value))}>
+        {voiceOptions.map((voice, index) => (
+          <option key={index} value={voice.name}>{voice.name}</option>
+        ))}
+      </select>
     </div>
   );
 }
