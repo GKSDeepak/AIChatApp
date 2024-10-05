@@ -83,6 +83,10 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+app.get('/try', (req, res) => {
+  res.send('Hello, this is some text displayed on the screen!');
+});
+
 app.post('/upload', upload.single('file'),  (req, res) => {
   console.log(req.body)
   console.log(req.file)
