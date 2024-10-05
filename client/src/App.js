@@ -1,89 +1,129 @@
-import React, { useState, useRef } from 'react';
-import { FaRegCopy } from "react-icons/fa";
-import Text from './components/Text';
+// import React, { useState, useRef } from 'react';
+// import Text from './components/Text';
+// import './App.css';
+
+// function App() {
+//   const [question, setQuestion] = useState('');
+//   const [conversation, setConversation] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const chatEndRef = useRef(null);
+
+//   const backendUrl = 'http://localhost:5000'; // Ensure the backend server is running
+
+//   // Function to submit question to the server
+//   const askQuestion = async () => {
+//     if (!question.trim()) return; // Don't send empty questions
+//     setLoading(true);
+
+//     // Update the conversation with the user question
+//     setConversation((prev) => [
+//       ...prev,
+//       { role: 'user', content: question },
+//     ]);
+
+//     try {
+//       const responseStream = await fetch(`${backendUrl}/chat`, {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({ userInput: question }) // Send as JSON
+//       });
+//       // console.log(responseStream);
+//       // Create a new ReadableStream to handle the response
+//       const reader = responseStream.body.getReader();
+//       // console.log(reader);
+//       const decoder = new TextDecoder("utf-8");
+//       // console.log(decoder);
+      
+//       let currentGeminiMessage = ""; // Holds the current message being built
+
+//       while (true) {
+//         const { done, value } = await reader.read();
+//         if (done) break;
+  
+//         const chunk = decoder.decode(value, { stream: true });
+//         currentGeminiMessage += chunk; // Accumulate the streamed content
+  
+//         // Update the conversation to reflect the current message
+//         setConversation((prev) => {
+//           const lastIndex = prev.length - 1;
+//           // Check if the last message is from Gemini
+//           if (prev[lastIndex]?.role === 'groq') {
+//             const updatedConversation = [...prev];
+//             updatedConversation[lastIndex].content = currentGeminiMessage; // Update the last message
+//             return updatedConversation;
+//           } else {
+//             return [...prev, { role: 'groq', content: currentGeminiMessage }]; // Add new message
+//           }
+//         });
+  
+//         // Scroll to the bottom of the chat
+//         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+//       }
+  
+      
+//       // Clear the input
+//       setQuestion('');
+//     } catch (error) {
+//       console.error("Error fetching response from server:", error);
+//       setLoading(false);
+//     }finally{
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="container">
+//       <h1>Chat with me</h1>
+//       <div className="chat-container">
+//         {conversation.map((msg, index) => (
+//           <Text key={index} msg={msg} />
+//         ))}
+//         <div ref={chatEndRef} />
+//       </div>
+//       <textarea
+//         className="textarea"
+//         rows="4"
+//         placeholder="Ask a question..."
+//         value={question}
+//         onChange={(e) => setQuestion(e.target.value)}
+//       />
+//       <br />
+//       <button className="button" onClick={askQuestion} disabled={loading}>
+//         {loading ? 'Loading...' : 'Ask'}
+//       </button>
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+import { BrowserRouter,Routes,Route } from 'react-router-dom'
+import React from 'react';
 import './App.css';
+import Signup from './pages/Signup';
+import Chat from './pages/Chat';
+import Login from './pages/Login';
+
+
 
 function App() {
-  const [question, setQuestion] = useState('');
-  const [conversation, setConversation] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const chatEndRef = useRef(null);
-
-  const backendUrl = 'http://localhost:5000'; // Ensure the backend server is running
-
-  // Function to submit question to the server
-  const askQuestion = async () => {
-    if (!question.trim()) return; // Don't send empty questions
-    setLoading(true);
-
-    try {
-      // Post question to backend
-      const response = await fetch(`${backendUrl}/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ userInput: question }) // Send as `userInput` to match backend
-      });
-
-
-     
-      console.log(response);
-
-      const data = await response.json();
-
-      console.log(data);
-      const answer = data.response; // Adjust to match the backend response key
-      console.log(answer);
-
-      // Update the conversation
-      setConversation((prev) => [
-        ...prev,
-        { role: 'user', content: question },
-        { role: 'gemini', content: answer }
-      ]);
-
-      // Clear the input
-      setQuestion('');
-    } catch (error) {
-      console.error("Error fetching response from server:", error);
-    } finally {
-      setLoading(false);
-      // Scroll to bottom of chat
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-
+  
 
   return (
-    <div className="container">
-      <h1>Chat with me</h1>
-
-      {/* Chat container */}
-      <div className="chat-container">
-        {conversation.map((msg, index) => (
-
-
-          <Text key={index} msg={msg} /> 
-
-        ))}
-        <div ref={chatEndRef} />
-      </div>
-
-      {/* Input section */}
-      <textarea
-        className="textarea"
-        rows="4"
-        placeholder="Ask a question..."
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-      />
-      <br />
-      <button className="button" onClick={askQuestion} disabled={loading}>
-        {loading ? 'Loading...' : 'Ask'}
-      </button>
-    </div>
+    <BrowserRouter>
+ 
+      <Routes>
+        {/* <Route path='/' element={<Home/>}/> */}
+        <Route path='/' element={<Login/>}/> 
+        <Route path='/signup' element={<Signup />}/>
+        <Route path='/chat' element={<Chat/>}/>
+      </Routes>
+    
+    </BrowserRouter>
   );
 }
 

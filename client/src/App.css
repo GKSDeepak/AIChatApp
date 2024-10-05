@@ -20,6 +20,14 @@ h1 {
   margin-bottom: 20px;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 10px;
+}
 .chat-container {
   height: 400px;
   overflow-y: auto;
@@ -30,14 +38,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-.chat-container::-webkit-scrollbar {
-  width: 8px;
-}
 
-.chat-container::-webkit-scrollbar-thumb {
-  background-color: #555;
-  border-radius: 10px;
-}
 
 .message {
   position: relative;  
@@ -56,16 +57,17 @@ h1 {
   
 }
 
-.message.gemini strong {
+.message.groq strong {
   
   color: #ff9800;
   
 }
 
-.message.user,.message.gemini {
+.message.user,.message.groq {
   background-color: gray;
   border-radius: 15px;
   padding: 15px;
+  text-align: left;
 }
 
 
@@ -94,9 +96,7 @@ h1 {
 }
 
 .copy-button {
-  position: absolute;                /* Use absolute positioning for the button */
-  right: 0;                         /* Align button to the right */
-  top: 0;  
+  
   background-color: #4CAF50;
   color: white;
   border: none;
@@ -131,3 +131,21 @@ h1 {
 .button:hover:enabled {
   background-color: #0056b3;
 }
+
+.code-block{
+  overflow-x: auto; /* Enable horizontal scrolling */
+  white-space: pre-wrap; /* Preserve line breaks */
+  max-width: 640px;
+  
+}
+.code-content{
+  display: flex;
+  flex-direction: column;
+}
+
+.code-head{
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
