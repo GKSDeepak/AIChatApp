@@ -37,7 +37,7 @@ app.use(cookieParser());
 
 // app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(cors({
-  origin: ['http://localhost:3000','https://ai-chat-app-fronttemp.vercel.app'], // Allow requests only from your frontend origin
+  origin: ['https://ai-chat-app-fronttemp.vercel.app'], // Allow requests only from your frontend origin
   credentials: true, // Allow cookies and credentials
 }));
 
