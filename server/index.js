@@ -6,8 +6,15 @@ require("dotenv").config();
 
 // const {upload} = require("./middleware/multer.middleware");
 
+
+
+
+
 const  multer = require( 'multer');
 
+
+// Allow requests from your frontend
+const allowedOrigins = ['https://ai-chat-app-fronttemp.vercel.app'];
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './public/images')               //cb means call back
@@ -25,7 +32,14 @@ const upload = multer({ storage: storage })
 
 // Initialize Express app
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // Enable this if you need to send cookies or authentication tokens
+}));
+
+
+// app.use(cors());
 app.use(bodyParser.json());
 const API_KEY = process.env.API_KEY;
 
