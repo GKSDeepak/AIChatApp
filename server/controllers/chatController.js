@@ -1,6 +1,6 @@
 const groq = require('../config/config');
 const streamResponse = require('../utils/streamResponse');
-
+const textExtractionService = require('../utils/textExtraction');
 // Controller function to handle chat requests
 async function getGroqChatCompletion(req, res) {
   const userInput = req.body?.userInput;
@@ -9,16 +9,29 @@ async function getGroqChatCompletion(req, res) {
     return res.status(400).json({ error: 'Invalid request body' });
   }
 
+  const uploadedFile = req.file; // Access the uploaded file if it exists
+    console.log('Incoming /chat req:', userInput, 'Uploaded File:', uploadedFile ? uploadedFile.originalname : 'No file uploaded');
+
+    let extractedText = '';
+
+    // Check if a file was uploaded
+    if (uploadedFile) {
+      extractedText = await textExtractionService.extractText(uploadedFile);
+    }
+
+    // Combine user input with extracted text for AI response
+    const combinedInput = userInput ? `${userInput}\n\nExtracted from file:\n${extractedText}` : extractedText;
+
   try {
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: "Whenever you provide code in your responses, always specify the programming language after the opening triple backticks (```), like ` ```python `, ` ```cpp `, etc."
+          content: "Whenever you provide code in your responses but not text, always specify the programming language after the opening triple backticks (```), like ` ```python `, ` ```cpp `, etc."
         },
         {
           role: "user",
-          content: userInput,  // Use the input received from the client
+          content: combinedInput,  // Use the input received from the client
         }
       ],
       model: "llama3-8b-8192",

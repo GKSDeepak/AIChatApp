@@ -1,6 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import Text from '../components/Text';
+import FileUpload from '../components/FileUpload';
 import '../App.css';
 
 const Chat = () => {
@@ -8,14 +9,25 @@ const Chat = () => {
   const [conversation, setConversation] = useState([]);
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
+  const [uploadedFile, setUploadedFile] = useState(null); 
 
   // const backendUrl = 'http://localhost:5000'; // Ensure the backend server is running
   const backendUrl = process.env.BACKEND_URL;
 
   // Function to submit question to the server
   const askQuestion = async () => {
-    if (!question.trim()) return; // Don't send empty questions
+    if (!question.trim() && !uploadedFile) return; // Don't send empty questions
     setLoading(true);
+
+
+    // Prepare the form data
+    const formData = new FormData();
+    if (question.trim()) {
+      formData.append('userInput', question); // Send question if it exists
+    }
+    if (uploadedFile) {
+      formData.append('file', uploadedFile); // Append the uploaded file
+    }
 
     // Update the conversation with the user question
     setConversation((prev) => [
@@ -26,10 +38,11 @@ const Chat = () => {
     try {
       const responseStream = await fetch(`${backendUrl}/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ userInput: question }) // Send as JSON
+        body : formData
+        // headers: {
+        //   "Content-Type": "application/json"
+        // },
+        // body: JSON.stringify({ userInput: question }) // Send as JSON
       });
       // console.log(responseStream);
       // Create a new ReadableStream to handle the response
@@ -92,9 +105,11 @@ const Chat = () => {
         onChange={(e) => setQuestion(e.target.value)}
       />
       <br />
+      <FileUpload onFileUpload={setUploadedFile} />
       <button className="button" onClick={askQuestion} disabled={loading}>
         {loading ? 'Loading...' : 'Ask'}
       </button>
+      
     </div>
   );
 }
