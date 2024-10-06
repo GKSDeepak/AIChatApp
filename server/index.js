@@ -1,13 +1,20 @@
 const express = require("express");
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const AuthRoutes = require("./routes/authRoutes");
+const ChatHistoryRoutes = require("./routes/chatHistoryRoutes");
 require("dotenv").config();
+require("./db");
 
 // Initialize Express app
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(AuthRoutes);
+app.use('/api', ChatHistoryRoutes);
 const API_KEY = process.env.API_KEY;
 
 async function runChat(userInput) {
@@ -66,7 +73,7 @@ app.post('/chat', async (req, res) => {
 
 
 // Start the server
-const PORT = 5000;
+const PORT = 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
