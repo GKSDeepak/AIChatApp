@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import { FaRegCopy } from "react-icons/fa";
 import Text from '../components/Text';
 import { AuthContext } from "../context/AuthContext";
@@ -37,6 +37,32 @@ const Chat = () => {
       const answer = data.response; // Adjust to match the backend response key
       console.log(answer);
 
+      // Store user question and AI response in database
+    const userId = user?.id; // Assuming `user` object has `id`
+    await fetch(`${backendUrl}/api/storeMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: userId,
+        message: question,
+        sender: "user"
+      })
+    });
+
+    await fetch(`${backendUrl}/api/storeMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: userId,
+        message: answer,
+        sender: "gemini"
+      })
+    });
+
       // Update the conversation
       setConversation((prev) => [
         ...prev,
@@ -54,6 +80,29 @@ const Chat = () => {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      if (user && user.id) {
+        try {
+          const response = await fetch(`${backendUrl}/api/getChatHistory/${user.id}`);
+          const data = await response.json();
+          if (data.success && data.chatHistory) {
+            // Convert chatHistory data to the format used in conversation
+            const formattedHistory = data.chatHistory.map((msg) => ({
+              role: msg.sender === "user" ? "user" : "gemini",
+              content: msg.message
+            }));
+            setConversation(formattedHistory);
+          }
+        } catch (error) {
+          console.error("Error fetching chat history:", error);
+        }
+      }
+    };
+  
+    fetchChatHistory();
+  }, [user]);
 
   const handleAuthClick = () => {
     if(user && user.token) {
