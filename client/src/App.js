@@ -163,9 +163,15 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState();
   const chatEndRef = useRef(null);
-  const backendUrl = process.env.BACKEND_BASEURL;
+  // const backendUrl = `${process.env.BACKEND_BASEURL}`;
+  // const backendUrl = "http://localhost:5001";
+  const backendUrl = "https://ai-chat-app-temp.vercel.app";
 
-  // `${import.meta.env.BACKEND_BASEURL}`/login
+
+
+  // const backendUrl =  `${import.meta.env.BACKEND_BASEURL}`
+  // const backendUrl = import.meta.env.VITE_BACKEND_BASEURL;
+
 
   // Text-to-speech state
   const synth = window.speechSynthesis;
@@ -243,6 +249,8 @@ function App() {
     if (!question.trim()) return;
     setLoading(true);
     try {
+      console.log("Making request to:", backendUrl);
+      
       const response = await fetch(`${backendUrl}/chat`, {
         method: "POST",
         headers: {

@@ -14,7 +14,6 @@ const  multer = require( 'multer');
 
 
 // Allow requests from your frontend
-const allowedOrigins = ['https://ai-chat-app-fronttemp.vercel.app'];
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './public/images')               //cb means call back
@@ -32,6 +31,8 @@ const upload = multer({ storage: storage })
 
 // Initialize Express app
 const app = express();
+const allowedOrigins = ['https://ai-chat-app-fronttemp.vercel.app', 'http://localhost:3000'];
+
 app.use(cors({
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
