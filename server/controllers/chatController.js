@@ -14,7 +14,7 @@ async function getGroqChatCompletion(req, res) {
       messages: [
         {
           role: "system",
-          content: "Whenever you provide code in your responses, always specify the programming language after the opening triple backticks (```), like ` ```python `, ` ```cpp `, etc."
+          content: "Whenever you provide code in your responses but not text, always specify the programming language after the opening triple backticks (```), like ` ```python `, ` ```cpp `, etc."
         },
         {
           role: "user",
