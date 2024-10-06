@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FaRegCopy } from "react-icons/fa";
-import SpeechButton from './SpeechButton';
+
 
 const Text = ({ msg }) => {
   const [isCopied, setIsCopied] = useState(false);
