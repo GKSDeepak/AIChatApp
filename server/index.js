@@ -3,16 +3,14 @@ const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@googl
 const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
+const cookieParser = require("cookie-parser");
+// const cors = require("cors");
+const AuthRoutes = require("./routes/authRoutes");
+const ChatHistoryRoutes = require("./routes/chatHistoryRoutes");
+require("./db");
 
 // const {upload} = require("./middleware/multer.middleware");
-
-
-
-
-
 const  multer = require( 'multer');
-
-
 // Allow requests from your frontend
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -25,23 +23,44 @@ const storage = multer.diskStorage({
 
     }
   });
-  
 const upload = multer({ storage: storage })
+
 
 
 // Initialize Express app
 const app = express();
-const allowedOrigins = ['https://ai-chat-app-fronttemp.vercel.app', 'http://localhost:3000'];
+// const allowedOrigins = ['http://localhost:3000'];
+//  'https://ai-chat-app-fronttemp.vercel.app'
+app.use(bodyParser.json());
+app.use(cookieParser());
+// app.options('*', cors()); // Handle preflight requests for all routes
 
+// app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true, // Enable this if you need to send cookies or authentication tokens
+  origin: ['http://localhost:3000','https://ai-chat-app-fronttemp.vercel.app'], // Allow requests only from your frontend origin
+  credentials: true, // Allow cookies and credentials
 }));
 
 
+app.use('/user', AuthRoutes);
+app.use('/api', ChatHistoryRoutes);
+
+// app.use(cors({
+//   // origin: allowedOrigins,
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   credentials: true, // Enable this if you need to send cookies or authentication tokens
+// }));
+
+// app.options('*', cors());
+
 // app.use(cors());
-app.use(bodyParser.json());
 const API_KEY = process.env.API_KEY;
 
 async function runChat(userInput) {
