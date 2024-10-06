@@ -131,3 +131,30 @@ h1 {
 .button:hover:enabled {
   background-color: #0056b3;
 }
+
+.top-bar {
+  position: relative; /* Set the position to relative so child elements can use absolute positioning */
+  display: flex;
+  justify-content: center; /* This keeps the title centered */
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.auth-button {
+  position: absolute;  /* This allows the button to be placed anywhere within the top-bar */
+  top: 0;
+  right: 0;
+  background-color: #ff5722;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+  margin-right: 20px;
+}
+
+.auth-button:hover {
+  background-color: #e64a19;
+}
