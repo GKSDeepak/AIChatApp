@@ -163,7 +163,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState();
   const chatEndRef = useRef(null);
-  const backendUrl = `${process.env.BACKEND_BASEURL}`;
+  const backendUrl = process.env.BACKEND_BASEURL;
 
   // `${import.meta.env.BACKEND_BASEURL}`/login
 
