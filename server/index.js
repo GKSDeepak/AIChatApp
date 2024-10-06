@@ -83,6 +83,10 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.send('just to see is server is working');
+});
+
 app.get('/try', (req, res) => {
   res.send('Hello, this is some text ayed on the screen!');
 });
