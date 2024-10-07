@@ -9,6 +9,8 @@ const router = Router() ;
 
 const salt = bcrypt.genSaltSync(10);
 const secret = process.env.jwtsecret ;
+const allowedOrigins = ['http://localhost:3000', 'https://ai-chat-app-fronttemp.vercel.app'];
+
 router.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
