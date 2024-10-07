@@ -27,6 +27,19 @@ const getChatHistory = async (userId)=> {
     }
 }
 
+const allowedOrigins = ['http://localhost:3000', 'https://ai-chat-app-fronttemp.vercel.app'];
+
+router.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Include credentials like cookies
+}));
+
 // storeMessage end-point
 router.post('/storeMessage', async (req, res) => {
     const { userId, message, sender } = req.body;

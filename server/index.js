@@ -31,8 +31,7 @@ const upload = multer({ storage: storage })
 const app = express();
 // const allowedOrigins = ['http://localhost:3000'];
 //  'https://ai-chat-app-fronttemp.vercel.app'
-app.use(bodyParser.json());
-app.use(cookieParser());
+
 // app.options('*', cors()); // Handle preflight requests for all routes
 
 // app.use(cors({ origin: 'http://localhost:3000' }));
@@ -41,6 +40,10 @@ app.use(cors({
   credentials: true, // Allow cookies and credentials
 }));
 
+// app.use(cors());
+
+app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use('/user', AuthRoutes);
 app.use('/api', ChatHistoryRoutes);
@@ -60,7 +63,6 @@ app.use('/api', ChatHistoryRoutes);
 
 // app.options('*', cors());
 
-// app.use(cors());
 const API_KEY = process.env.API_KEY;
 
 async function runChat(userInput) {
