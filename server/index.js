@@ -69,7 +69,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use('/user', AuthRoutes);
-
+app.use('/api', ChatHistoryRoutes);
 
 
 // app.use(cors({
