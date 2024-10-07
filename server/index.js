@@ -53,7 +53,7 @@ const allowedOrigins = ['http://localhost:3000', 'https://ai-chat-app-fronttemp.
 // app.options('*', cors());
 
 app.use(cors({
-  origin: '*'
+  origin: 'https://ai-chat-app-fronttemp.vercel.app'
 }));
 
 // app.use(cors());
