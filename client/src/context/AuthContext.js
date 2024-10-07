@@ -39,7 +39,9 @@ const AuthProvider = ({ children }) => {
 
     },[]) ;
     
-    const backendUrl = 'https://ai-chat-app-temp.vercel.app';
+    // const backendUrl = 'https://ai-chat-app-temp.vercel.app';
+  const backendUrl = process.env.VITE_BACKEND_BASEURL || 'http://localhost:5001' ; // Ensure the backend server is running
+
 
     const login = async (email, password) => {
         // try {
@@ -50,7 +52,7 @@ const AuthProvider = ({ children }) => {
             headers: {
               'Content-Type': 'application/json', 
             },
-            withCredentials: true
+            // withCredentials: true
         });
           const token = response.data.token;
           const userData = { email: response.data.email };
@@ -70,7 +72,7 @@ const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-          await axios.post(`${backendUrl}/api/logout`, {withCredentials: true});
+          await axios.post(`${backendUrl}/user/logout`, {withCredentials: true});
           Cookies.remove('token');
           Cookies.remove('user');
           Cookies.remove('id');

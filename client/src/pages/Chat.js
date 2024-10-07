@@ -15,7 +15,8 @@ const Chat = () => {
 //   const chatEndRef = useRef(null);
 
   // const backendUrl = 'http://localhost:5001'; // Ensure the backend server is running
-  const backendUrl = 'https://ai-chat-app-temp.vercel.app'; // Ensure the backend server is running
+  // 'https://ai-chat-app-temp.vercel.app'
+  const backendUrl = process.env.VITE_BACKEND_BASEURL || 'http://localhost:5001' ; // Ensure the backend server is running
 
 
   // Text-to-speech state
@@ -118,7 +119,7 @@ const handleRestart = (text) => {
       headers: {
         "Content-Type": "application/json"
       },
-      credentials: 'include', // Include credentials
+      // credentials: 'include', // Include credentials
       body: JSON.stringify({
         userId: userId,
         message: question,
@@ -131,7 +132,7 @@ const handleRestart = (text) => {
       headers: {
         "Content-Type": "application/json"
       },
-      credentials: 'include', // Include credentials
+      // credentials: 'include', // Include credentials
       body: JSON.stringify({
         userId: userId,
         message: answer,

@@ -92,11 +92,12 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+  const backendUrl = process.env.VITE_BACKEND_BASEURL || 'http://localhost:5001' ; // Ensure the backend server is running
     
     const handleButton1 = async (event) => {
         event.preventDefault();
         try {
-          const response = await axios.post('https://ai-chat-app-temp.vercel.app/user/register', { email, password });
+          const response = await axios.post(`${backendUrl}/user/register`, { email, password });
           console.log(response);
           if(response.data.email){
             setMessage('User registered successfully!');

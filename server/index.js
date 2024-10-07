@@ -8,22 +8,9 @@ const cookieParser = require("cookie-parser");
 const AuthRoutes = require("./routes/authRoutes");
 const ChatHistoryRoutes = require("./routes/chatHistoryRoutes");
 require("./db");
+const uploadRouter = require("./routes/uploadRoutes")
 
-// const {upload} = require("./middleware/multer.middleware");
-const  multer = require( 'multer');
-// Allow requests from your frontend
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, './public/images')               //cb means call back
-    },
-    filename: function (req, file, cb) {
-     // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      //cb(null, file.fieldname + '-' + uniqueSuffix)
-      cb(null, file.originalname)
 
-    }
-  });
-const upload = multer({ storage: storage })
 
 
 
@@ -33,37 +20,37 @@ const app = express();
 // CORS configuration
 const allowedOrigins = ['http://localhost:3000', 'https://ai-chat-app-fronttemp.vercel.app'];
 
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     // Allow requests with no origin (like mobile apps or curl requests)
-//     if (!origin) return callback(null, true);
-//     if (allowedOrigins.indexOf(origin) === -1) {
-//       var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-//       return callback(new Error(msg), false);
-//     }
-//     return callback(null, true);
-//   },
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-//   credentials: true,
-//   optionsSuccessStatus: 204
-// }));
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
 
 // // Handle preflight requests
 // app.options('*', cors());
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://ai-chat-app-fronttemp.vercel.app');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', 'https://ai-chat-app-fronttemp.vercel.app');
+//   res.header('Access-Control-Allow-Credentials', 'true');
+//   next();
+// });
 
-app.use(cors({
-  origin: 'https://ai-chat-app-fronttemp.vercel.app',
-  credentials: true
-}));
+// app.use(cors({
+//   origin: 'https://ai-chat-app-fronttemp.vercel.app',
+//   credentials: true
+// }));
 
-// app.use(cors());
+app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -142,6 +129,10 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+
+
+
+
 app.get('/', (req, res) => {
   res.send('just to see is server is working');
 });
@@ -150,12 +141,29 @@ app.get('/try', (req, res) => {
   res.send('Hello, this is some text displayed  on the screen!');
 });
 
-app.post('/upload', upload.single('file'),  (req, res) => {
-  console.log(req.body)
-  console.log(req.file)
-})
+// // const {upload} = require("./middleware/multer.middleware");
+// const  multer = require( 'multer');
+// // Allow requests from your frontend
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, './public/images')               //cb means call back
+//     },
+//     filename: function (req, file, cb) {
+//      // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+//       //cb(null, file.fieldname + '-' + uniqueSuffix)
+//       cb(null, file.originalname)
 
+//     }
+//   });
 
+// const upload = multer({ storage: storage })
+
+// app.post('/upload', upload.single('file'),  (req, res) => {
+//   console.log(req.body)
+//   console.log(req.file)
+// })
+
+app.post('/upload', uploadRouter)
 // Start the server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
