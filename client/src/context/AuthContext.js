@@ -47,6 +47,9 @@ const AuthProvider = ({ children }) => {
             email, 
             password 
           }, {
+            headers: {
+              'Content-Type': 'application/json', 
+            },
             withCredentials: true
         });
           const token = response.data.token;
@@ -67,7 +70,7 @@ const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-          await axios.post(`${backendUrl}/api/logout`);
+          await axios.post(`${backendUrl}/api/logout`, {withCredentials: true});
           Cookies.remove('token');
           Cookies.remove('user');
           Cookies.remove('id');
