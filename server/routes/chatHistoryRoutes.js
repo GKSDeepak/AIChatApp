@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const router = express.Router();
 const ChatHistory = require("../models/chatHistory");
 const User = require("../models/user");
+const cors = require("cors");
 
 const storeMessage = async (userId, message, sender) => {
     try {
