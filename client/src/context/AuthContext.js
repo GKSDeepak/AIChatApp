@@ -40,7 +40,7 @@ const AuthProvider = ({ children }) => {
     },[]) ;
     
     // const backendUrl = 'https://ai-chat-app-temp.vercel.app';
-  const backendUrl = process.env.VITE_BACKEND_BASEURL || 'http://localhost:5001' ; // Ensure the backend server is running
+  const backendUrl = process.env.REACT_APP_BACKEND_BASEURL || 'http://localhost:5001' ; // Ensure the backend server is running
 
 
     const login = async (email, password) => {

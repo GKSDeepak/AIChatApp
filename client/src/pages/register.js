@@ -92,7 +92,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
-  const backendUrl = process.env.VITE_BACKEND_BASEURL || 'http://localhost:5001' ; // Ensure the backend server is running
+  const backendUrl = process.env.REACT_APP_BACKEND_BASEURL || 'http://localhost:5001' ; // Ensure the backend server is running
     
     const handleButton1 = async (event) => {
         event.preventDefault();
