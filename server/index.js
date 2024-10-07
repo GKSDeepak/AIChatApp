@@ -29,21 +29,28 @@ const upload = multer({ storage: storage })
 
 // Initialize Express app
 const app = express();
-// const allowedOrigins = ['http://localhost:3000'];
-//  'https://ai-chat-app-fronttemp.vercel.app'
-app.use(bodyParser.json());
-app.use(cookieParser());
 
-// app.options('*', cors()); // Handle preflight requests for all routes
+// CORS configuration
+const allowedOrigins = ['http://localhost:3000', 'https://ai-chat-app-fronttemp.vercel.app'];
 
-// app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(cors({
-  origin: 'https://ai-chat-app-fronttemp.vercel.app', // Allow requests only from your frontend origin
-  credentials: true, // Allow cookies and credentials
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
 }));
 
-// app.use(cors());
+// Handle preflight requests
+app.options('*', cors());
 
+// app.use(cors());
+app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use('/user', AuthRoutes);
 app.use('/api', ChatHistoryRoutes);

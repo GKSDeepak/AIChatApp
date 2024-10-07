@@ -118,6 +118,7 @@ const handleRestart = (text) => {
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: 'include', // Include credentials
       body: JSON.stringify({
         userId: userId,
         message: question,
@@ -130,6 +131,7 @@ const handleRestart = (text) => {
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: 'include', // Include credentials
       body: JSON.stringify({
         userId: userId,
         message: answer,
