@@ -52,6 +52,12 @@ const allowedOrigins = ['http://localhost:3000', 'https://ai-chat-app-fronttemp.
 // // Handle preflight requests
 // app.options('*', cors());
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://ai-chat-app-fronttemp.vercel.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 app.use(cors({
   origin: 'https://ai-chat-app-fronttemp.vercel.app',
   credentials: true
