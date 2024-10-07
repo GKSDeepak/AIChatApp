@@ -9,7 +9,7 @@ const AuthRoutes = require("./routes/authRoutes");
 const ChatHistoryRoutes = require("./routes/chatHistoryRoutes");
 require("./db");
 
-// const {upload} = require("./middleware/multer.middleware");
+const {upload} = require("./middleware/multer.middleware");
 const  multer = require( 'multer');
 // Allow requests from your frontend
 const storage = multer.diskStorage({
