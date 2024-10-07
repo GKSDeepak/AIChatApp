@@ -4,18 +4,18 @@ const mongoose = require("mongoose");
 const router = express.Router();
 const ChatHistory = require("../models/chatHistory");
 const User = require("../models/user");
-const cors = require("cors");
+// const cors = require("cors");
 
-const storeMessage = async (userId, message, sender) => {
-    try {
-        const chat = new ChatHistory({ message, sender });
-        await chat.save() ;
+// const storeMessage = async (userId, message, sender) => {
+//     try {
+//         const chat = new ChatHistory({ message, sender });
+//         await chat.save() ;
 
-        await User.findByIdAndUpdate(userId, { $push: { chatHistory: chat._id } });
-    } catch (error) {
-        console.error("Error storing message: ", error);
-    }
-}
+//         await User.findByIdAndUpdate(userId, { $push: { chatHistory: chat._id } });
+//     } catch (error) {
+//         console.error("Error storing message: ", error);
+//     }
+// }
 
 const getChatHistory = async (userId)=> {
     try {
@@ -42,16 +42,16 @@ const getChatHistory = async (userId)=> {
 // }));
 
 // storeMessage end-point
-router.post('/storeMessage', async (req, res) => {
-    const { userId, message, sender } = req.body;
+// router.post('/storeMessage', async (req, res) => {
+//     const { userId, message, sender } = req.body;
 
-    try {
-        await storeMessage(userId, message, sender);
-        res.status(200).send({success: "true", message: "Message stored successfully"});
-    } catch (error) {
-        res.status(500).send({ success : "false", message: "Failed to store message", error });
-    }
-});
+//     try {
+//         await storeMessage(userId, message, sender);
+//         res.status(200).send({success: "true", message: "Message stored successfully"});
+//     } catch (error) {
+//         res.status(500).send({ success : "false", message: "Failed to store message", error });
+//     }
+// });
 
 // getChatHistory end-point
 router.get('/getChatHistory/:userId', async (req, res) => {

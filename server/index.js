@@ -69,8 +69,29 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use('/user', AuthRoutes);
-app.use('/api', ChatHistoryRoutes);
 
+
+const storeMessage = async (userId, message, sender) => {
+  try {
+      const chat = new ChatHistory({ message, sender });
+      await chat.save() ;
+
+      await User.findByIdAndUpdate(userId, { $push: { chatHistory: chat._id } });
+  } catch (error) {
+      console.error("Error storing message: ", error);
+  }
+}
+// app.use('/api', ChatHistoryRoutes);
+app.post('/api/storeMessage', async (req, res) => {
+  const { userId, message, sender } = req.body;
+
+  try {
+      await storeMessage(userId, message, sender);
+      res.status(200).send({success: "true", message: "Message stored successfully"});
+  } catch (error) {
+      res.status(500).send({ success : "false", message: "Failed to store message", error });
+  }
+});
 // app.use(cors({
 //   // origin: allowedOrigins,
 //   origin: function (origin, callback) {
