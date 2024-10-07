@@ -3,12 +3,30 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const cors = require("cors");
 
 const router = Router() ;
 
 const salt = bcrypt.genSaltSync(10);
 const secret = process.env.jwtsecret ;
+router.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
 
+// Handle preflight requests
+router.options('*', cors());
 router.post('/register', async (req,res) => {
   const {email,password} = req.body;
   try{
